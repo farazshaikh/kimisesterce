@@ -22,6 +22,7 @@ usage() {
     echo "  --setup-only        Only setup vLLM environment (no model serving)"
     echo "  --port              Serving port (default: 8000)"
     echo "  --max-model-len     Maximum model length (default: 65536, max: 131072)"
+    echo "  --max-batch-tokens  Maximum batched tokens (default: 32768, higher = more throughput)"
     echo "  --gpu-mem-util      GPU memory utilization (default: 0.85, can go up to 0.95 on B200)"
     echo "  --help              Display this help message"
     echo ""
@@ -33,7 +34,7 @@ usage() {
     echo "  $0"
     echo ""
     echo "  # Run with custom settings"
-    echo "  $0 --max-model-len 131072 --gpu-mem-util 0.95 --port 9000"
+    echo "  $0 --max-model-len 131072 --max-batch-tokens 65536 --gpu-mem-util 0.95"
     exit 1
 }
 
@@ -41,6 +42,7 @@ usage() {
 SETUP_ONLY=false
 PORT=8000
 MAX_MODEL_LEN=65536
+MAX_BATCH_TOKENS=32768
 GPU_MEM_UTIL=0.85
 
 while [[ $# -gt 0 ]]; do
@@ -55,6 +57,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --max-model-len)
             MAX_MODEL_LEN="$2"
+            shift 2
+            ;;
+        --max-batch-tokens)
+            MAX_BATCH_TOKENS="$2"
             shift 2
             ;;
         --gpu-mem-util)
@@ -140,7 +146,7 @@ echo ""
 echo "Configuration:"
 echo "  - Tensor Parallel Size: 8"
 echo "  - Max Model Length: $MAX_MODEL_LEN"
-echo "  - Max Num Batched Tokens: 8192"
+echo "  - Max Num Batched Tokens: $MAX_BATCH_TOKENS"
 echo "  - Max Num Seqs: 64"
 echo "  - GPU Memory Utilization: $GPU_MEM_UTIL"
 echo "  - Port: $PORT"
@@ -154,8 +160,8 @@ echo ""
 # B200 Blackwell GPU compatibility settings
 # - Disable custom all-reduce to avoid TMA descriptor errors
 # - Use auto KV cache dtype instead of fp8
-# - Lower batch size to reduce memory pressure
-# - Disable V1 engine features that may not be stable on Blackwell
+# - Batch size defaults to 32K tokens (configurable via --max-batch-tokens)
+# - Higher batch size = more throughput but more memory usage
 
 echo "Starting vLLM server..." | tee -a "$LOG_FILE"
 echo "========================================" | tee -a "$LOG_FILE"
@@ -172,7 +178,7 @@ if command -v script &> /dev/null; then
         --quantization fp8 \
         --max-model-len \"$MAX_MODEL_LEN\" \
         --max-num-seqs 64 \
-        --max-num-batched-tokens 8192 \
+        --max-num-batched-tokens \"$MAX_BATCH_TOKENS\" \
         --enable-chunked-prefill \
         --kv-cache-dtype auto \
         --gpu-memory-utilization \"$GPU_MEM_UTIL\" \
@@ -190,7 +196,7 @@ else
         --quantization fp8 \
         --max-model-len "$MAX_MODEL_LEN" \
         --max-num-seqs 64 \
-        --max-num-batched-tokens 8192 \
+        --max-num-batched-tokens "$MAX_BATCH_TOKENS" \
         --enable-chunked-prefill \
         --kv-cache-dtype auto \
         --gpu-memory-utilization "$GPU_MEM_UTIL" \
