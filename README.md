@@ -49,6 +49,19 @@ That's it! The API will be available at `http://localhost:8000`
 ./init_baremetal.sh --max-model-len 32768
 ```
 
+### Adjust Batch Size (Throughput vs Memory)
+
+```bash
+# Higher throughput (more memory usage)
+./init_baremetal.sh --max-batch-tokens 65536
+
+# Default (balanced - 32K tokens)
+./init_baremetal.sh --max-batch-tokens 32768
+
+# Lower memory usage
+./init_baremetal.sh --max-batch-tokens 16384
+```
+
 ### Use More GPU Memory
 
 ```bash
@@ -70,6 +83,7 @@ That's it! The API will be available at `http://localhost:8000`
 ```bash
 ./init_baremetal.sh \
   --max-model-len 131072 \
+  --max-batch-tokens 65536 \
   --gpu-mem-util 0.95 \
   --port 8000
 ```
@@ -278,8 +292,8 @@ Run the help command:
 # Setup once
 ./init_baremetal.sh --setup-only
 
-# Run with optimal settings
-./init_baremetal.sh --gpu-mem-util 0.95
+# Run with optimal settings  
+./init_baremetal.sh --max-batch-tokens 65536 --gpu-mem-util 0.95
 
 # Access at http://localhost:8000
 ```
@@ -292,5 +306,8 @@ Run the help command:
 
 1. **Maximize GPU Memory**: Use `--gpu-mem-util 0.95` for larger KV cache
 2. **Adjust Context**: Use `--max-model-len 32768` if you don't need 65k/128k context
-3. **Monitor GPUs**: Run `watch -n 1 nvidia-smi` to monitor GPU utilization
-4. **Batch Size**: The default 16384 batched tokens is optimized for throughput
+3. **Tune Batch Size**: 
+   - Default 32K tokens balances throughput and memory
+   - Increase to 65K for maximum throughput (more VRAM needed)
+   - Decrease to 16K to reduce memory pressure
+4. **Monitor GPUs**: Run `watch -n 1 nvidia-smi` to monitor GPU utilization
