@@ -1,0 +1,33 @@
+.venv/
+llm/models/vllm/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dylib
+
+# Virtual Environments
+venv/
+env/
+llm/vllm/venv/
+
+# Distribution / Build
+build/
+dist/
+*.egg-info/
+llm/vllm/DeepGEMM/build/
+llm/vllm/DeepGEMM/dist/
+llm/vllm/DeepGEMM/deep_gemm.egg-info/
+
+# Models and Large Files
+models/
+*.safetensors
+*.bin
+*.pth
+*.pt
+*.h5
+*.gguf
+*.tar.gz

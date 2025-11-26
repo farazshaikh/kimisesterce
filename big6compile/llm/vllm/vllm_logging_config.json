@@ -1,0 +1,51 @@
+{
+  "formatters": {
+    "detailed": {
+      "class": "vllm.logging.NewLineFormatter",
+      "datefmt": "%Y-%m-%d %H:%M:%S",
+      "format": "%(levelname)s %(asctime)s [%(name)s:%(lineno)d] %(message)s"
+    }
+  },
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "formatter": "detailed",
+      "level": "DEBUG",
+      "stream": "ext://sys.stdout"
+    }
+  },
+  "loggers": {
+    "vllm": {
+      "handlers": ["console"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "vllm.engine.llm_engine": {
+      "handlers": ["console"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "vllm.engine.metrics": {
+      "handlers": ["console"],
+      "level": "DEBUG",
+      "propagate": false
+    },
+    "vllm.entrypoints.openai.api_server": {
+      "handlers": ["console"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "vllm.entrypoints.openai.serving_chat": {
+      "handlers": ["console"],
+      "level": "DEBUG",
+      "propagate": false
+    },
+    "vllm.entrypoints.openai.serving_completion": {
+      "handlers": ["console"],
+      "level": "DEBUG",
+      "propagate": false
+    }
+  },
+  "version": 1
+}
+
